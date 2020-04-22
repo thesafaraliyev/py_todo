@@ -1,0 +1,19 @@
+{% include 'base.html' %}
+
+{% load crispy_forms_tags %}
+{{ form.media }}
+
+{% block content %}
+    <div>
+        <h4 id="tasks-header">Update task details <small>#{{ task.id }}</small></h4>
+        <button class="btn btn-sm btn-outline-secondary float-right" onclick="window.history.back();">return</button>
+    </div>
+
+    <hr>
+
+    <form method="post">{% csrf_token %}
+        <table>{{ form|crispy }}</table>
+        <button type="submit" class="btn btn-sm btn-primary">update</button>
+    </form>
+
+{% endblock content %}

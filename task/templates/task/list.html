@@ -1,0 +1,53 @@
+{% include 'base.html' %}
+
+{% block content %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+
+    <div>
+        <h4 id="tasks-header">Recent tasks</h4>
+        <a class="btn btn-sm btn-outline-secondary float-right" href="{% url 'task:create' %}">create new task</a>
+    </div>
+
+    <hr>
+    <table class="table table-bordered table-sm table-hover text-center">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Short description</th>
+            <th scope="col">Deadline</th>
+            <th scope="col">Operations</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.deadline }}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                        <a type="button" class="btn btn-outline-secondary" href="{% url 'task:detail' task.id %}">
+                            view
+                        </a>
+                        <a type="button" class="btn btn-outline-secondary" href="{% url 'task:update' task.id %}">
+                            edit
+                        </a>
+                        <a type="button" class="btn btn-outline-danger" href="{% url 'task:delete' task.id %}">
+                            delete
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}

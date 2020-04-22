@@ -1,0 +1,16 @@
+{% include 'base.html' %}
+
+{% block content %}
+    <div>
+        <h4 id="tasks-header">Task details <small>#{{ task.id }}</small></h4>
+        <button class="btn btn-sm btn-outline-secondary float-right" onclick="window.history.back();">return</button>
+    </div>
+
+    <hr>
+    <div>
+        <p><strong>Title:</strong> {{ task.title }}</p>
+        <p><strong>Deadline:</strong> {{ task.deadline }}</p>
+        <p><strong>Description:</strong> {{ task.description }}</p>
+    </div>
+
+{% endblock content %}
