@@ -5,7 +5,14 @@ from . import views
 app_name = 'auth'
 urlpatterns = [
     path('', views.registration, name='registration'),
-    path('login/', auth_views.LoginView.as_view(template_name='authentication/login.html'), name='login'),
+    path(
+        'login/',
+        auth_views.LoginView.as_view(
+            redirect_authenticated_user=True,
+            template_name='authentication/login.html'
+        ),
+        name='login'
+    ),
     path('logout/', auth_views.LogoutView.as_view(template_name='authentication/logout.html'), name='logout'),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='authentication/password-reset.html'),
          name='password_reset'),

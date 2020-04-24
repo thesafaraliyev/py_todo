@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, reverse
 from .forms import UserCreationForm
 from django.contrib import messages
 
 
 def registration(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('task:list'))
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -14,5 +17,3 @@ def registration(request):
     else:
         form = UserCreationForm()
     return render(request, 'authentication/register.html', {'form': form})
-
-

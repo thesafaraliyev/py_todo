@@ -1,23 +1,30 @@
-# from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Task
 from .forms import TaskForm
 from django.urls import reverse_lazy
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class TaskListView(LoginRequiredMixin, ListView):
-    model = Task
     template_name = "task/list.html"
     context_object_name = 'tasks'
-    queryset = Task.objects.all().order_by('deadline')
+
+    def get_queryset(self):
+        return Task.objects.filter(author=self.request.user).order_by('deadline')
 
 
-class TaskDetailView(LoginRequiredMixin, DetailView):
+class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Task
     template_name = "task/detail.html"
     context_object_name = 'task'
+
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.author
 
 
 class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -27,17 +34,29 @@ class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_url = reverse_lazy('task:list')
     success_message = 'New task successfully created!'
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
-class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = Task
     template_name = 'task/update.html'
     form_class = TaskForm
     success_url = reverse_lazy('task:list')
     success_message = 'Task successfully updated!'
 
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.author
 
-class TaskDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class TaskDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Task
     template_name = 'task/delete.html'
     success_url = reverse_lazy('task:list')
     success_message = 'Task successfully deleted!'
+
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.author
