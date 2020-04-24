@@ -12,7 +12,7 @@ def registration(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Your account has been created! You are now able to log in.')
-            return redirect('auth:login')
+            return redirect('login')
 
     else:
         form = UserCreationForm()
