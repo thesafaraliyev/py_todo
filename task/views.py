@@ -7,20 +7,20 @@ from .forms import TaskForm
 from django.urls import reverse_lazy
 
 
-class TaskListView(ListView):
+class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = "task/list.html"
     context_object_name = 'tasks'
     queryset = Task.objects.all().order_by('deadline')
 
 
-class TaskDetailView(DetailView):
+class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "task/detail.html"
     context_object_name = 'task'
 
 
-class TaskCreateView(SuccessMessageMixin, CreateView):
+class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Task
     template_name = 'task/create.html'
     form_class = TaskForm
@@ -28,7 +28,7 @@ class TaskCreateView(SuccessMessageMixin, CreateView):
     success_message = 'New task successfully created!'
 
 
-class TaskUpdateView(SuccessMessageMixin, UpdateView):
+class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Task
     template_name = 'task/update.html'
     form_class = TaskForm
@@ -36,7 +36,7 @@ class TaskUpdateView(SuccessMessageMixin, UpdateView):
     success_message = 'Task successfully updated!'
 
 
-class TaskDeleteView(SuccessMessageMixin, DeleteView):
+class TaskDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Task
     template_name = 'task/delete.html'
     success_url = reverse_lazy('task:list')

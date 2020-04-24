@@ -1,19 +1,26 @@
-{% include 'base.html' %}
+{% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
-{{ form.media }}
 
 {% block content %}
-    <div>
-        <h4 id="tasks-header">Create new task</h4>
-        <button class="btn btn-sm btn-outline-secondary float-right" onclick="window.history.back();">return</button>
+    <div class="content-section">
+        <form method="post">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Create new task</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.history.back();">
+                    cancel
+                </button>
+                <button class="btn btn-sm btn-outline-primary" type="submit">create</button>
+            </div>
+        </form>
     </div>
-
-    <hr>
-
-    <form method="post">{% csrf_token %}
-        <table>{{ form|crispy }}</table>
-        <button type="submit" class="btn btn-sm btn-primary">create</button>
-    </form>
-
 {% endblock content %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock javascripts %}

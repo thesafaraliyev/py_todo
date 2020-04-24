@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authentication',
     'task',
     'crispy_forms',
     'tempus_dominus',
@@ -121,4 +122,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Custom user model  registration
+# https://docs.djangoproject.com/en/3.0/topics/auth/customizing/
+
+AUTH_USER_MODEL = 'authentication.User'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/tasks'
