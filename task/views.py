@@ -5,6 +5,7 @@ from .models import Task
 from .forms import TaskForm
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
+from todo.models import Todo
 
 User = get_user_model()
 
@@ -21,6 +22,8 @@ class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Task
     template_name = "task/detail.html"
     context_object_name = 'task'
+
+    # todo_list = Todo.objects.get(task=4)
 
     def test_func(self):
         task = self.get_object()

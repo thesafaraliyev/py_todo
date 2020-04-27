@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="content-section">
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+                <span>My todo list</span>
+            </legend>
+        </fieldset>
+
+        <table class="table table-sm table-hover text-center">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Deadline</th>
+                <th scope="col">Access level</th>
+                <th scope="col">Author</th>
+                <th scope="col">Operations</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for todo in todo_list %}
+                <tr>
+                    <td>{{ todo.task.title }}</td>
+                    <td>{{ todo.task.deadline }}</td>
+                    <td>{{ todo.get_access_type_display }}</td>
+                    <td>{{ todo.task.author.username }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                            <a type="button" class="btn btn-outline-secondary"
+                               href="{% url 'task:detail' todo.task.id %}">
+                                view details
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock content %}
+
+

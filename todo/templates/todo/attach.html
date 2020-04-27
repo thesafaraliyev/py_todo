@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+    <div class="content-section">
+        <form method="post">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Task assignments <small>#{{ task.id }}</small></legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-sm btn-outline-primary" type="submit">attach</button>
+            </div>
+        </form>
+    </div>
+
+
+
+    <div class="content-section">
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+                <span>Assigned users </span>
+            </legend>
+        </fieldset>
+
+        <table class="table table-sm table-hover text-center">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Access type</th>
+                <th scope="col">Operations</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task_user in attached_users %}
+                <tr>
+                    <td>{{ task_user.user.username }}</td>
+                    <td>{{ task_user.user.email }}</td>
+                    <td>{{ task_user.get_access_type_display }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                            <a type="button" class="btn btn-outline-danger" href="{% url 'task:delete' task.id %}">
+                                revoke access
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+{% endblock content %}

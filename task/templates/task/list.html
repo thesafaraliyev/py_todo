@@ -14,7 +14,7 @@
         <table class="table table-sm table-hover text-center">
             <thead class="thead-dark">
             <tr>
-                <th scope="col">Name</th>
+                <th scope="col">Title</th>
                 <th scope="col">Short description</th>
                 <th scope="col">Deadline</th>
                 <th scope="col">Operations</th>
@@ -33,6 +33,9 @@
                             </a>
                             <a type="button" class="btn btn-outline-secondary" href="{% url 'task:update' task.id %}">
                                 edit
+                            </a>
+                            <a type="button" class="btn btn-outline-secondary" href="{% url 'todo:attach' task.id %}">
+                                attach
                             </a>
                             <a type="button" class="btn btn-outline-danger" href="{% url 'task:delete' task.id %}">
                                 delete
