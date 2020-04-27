@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'authentication',
     'task',
     'todo',
+    'comment',
     'crispy_forms',
     'tempus_dominus',
 ]
