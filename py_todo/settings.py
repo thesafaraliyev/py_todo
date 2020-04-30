@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'task',
-    'todo',
     'comment',
     'crispy_forms',
     'tempus_dominus',
@@ -81,6 +80,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'todo',
+        'USER': 'elshan',
+        'PASSWORD': 'salam292',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
+    'comment': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'comment',
         'USER': 'elshan',
         'PASSWORD': 'salam292',
         'HOST': 'localhost',
@@ -132,3 +139,5 @@ AUTH_USER_MODEL = 'authentication.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/tasks'
+
+DATABASE_ROUTERS = ['py_todo.routers.CommentRouter', ]

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load get_user %}
 
 {% block content %}
     <div class="content-section">
@@ -16,5 +16,31 @@
                 return
             </button>
         </div>
+    </div>
+
+
+    <div class="content-section">
+        <div>
+            <ul class="list-group list-group-flush">
+                {% for comment in comments %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ comment.message }}
+                        <span><small>{% get_user_by_id comment.user_id %} &middot; {{ comment.created_at }}</small></span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <hr>
+        <div>
+            <form>
+                <div class="form-group">
+                    <label for="comment">Add comment</label>
+                    <input type="email" class="form-control" id="comment" aria-describedby="emailHelp">
+                </div>
+                <button type="submit" class="btn btn-outline-primary btn-sm">send</button>
+            </form>
+        </div>
+
     </div>
 {% endblock content %}

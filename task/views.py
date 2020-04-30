@@ -1,11 +1,14 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Task
-from .forms import TaskForm
+from .models import Task, TaskUser
+from .forms import TaskForm, TaskUserAttachForm
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
-from todo.models import Todo
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
+from comment.models import Comment
 
 User = get_user_model()
 
@@ -23,7 +26,10 @@ class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = "task/detail.html"
     context_object_name = 'task'
 
-    # todo_list = Todo.objects.get(task=4)
+    def get_context_data(self, **kwargs):
+        context = super(TaskDetailView, self).get_context_data(**kwargs)
+        context['comments'] = Comment.objects.filter(task_id=self.get_object().id)
+        return context
 
     def test_func(self):
         task = self.get_object()
@@ -63,3 +69,29 @@ class TaskDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixi
     def test_func(self):
         task = self.get_object()
         return self.request.user == task.author
+
+
+@login_required
+def attach(request, pk):
+    task = get_object_or_404(Task, pk=pk, author=request.user)
+    users = TaskUser.objects.filter(task=task)
+
+    if request.method == 'POST':
+        form = TaskUserAttachForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data.get('user')
+            access_type = form.cleaned_data.get('access')
+
+            try:
+                TaskUser.objects.get(user=user, task=task)
+                messages.warning(request, 'User already has access to this task.')
+                return render(request, 'task/attach.html', {'task': task, 'form': form, 'users': users})
+            except TaskUser.DoesNotExist:
+                TaskUser.objects.create(user=user, access_type=access_type, task=task)
+                messages.success(request, 'Access successfully granted.')
+                return redirect('task:user-attach', pk=pk)
+
+    else:
+        form = TaskUserAttachForm()
+
+    return render(request, 'task/attach.html', {'task': task, 'form': form, 'users': users})

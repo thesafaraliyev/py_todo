@@ -12,3 +12,20 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TaskUser(models.Model):
+    READ = 1
+    COMMENT = 2
+
+    ACCESS_TYPES = [
+        (READ, 'Read only'),
+        (COMMENT, 'Read and comment'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    access_type = models.PositiveSmallIntegerField(default=1, choices=ACCESS_TYPES)
+
+    class Meta:
+        unique_together = ['user', 'task']

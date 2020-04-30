@@ -6,8 +6,8 @@ User = get_user_model()
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user_id = models.PositiveIntegerField()
+    task_id = models.PositiveIntegerField()
     message = models.CharField(max_length=300, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

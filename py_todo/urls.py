@@ -19,7 +19,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('tasks/', include('task.urls'), name='task'),
-    path('todos/', include('todo.urls'), name='todo'),
     path('register/', include('authentication.urls')),
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(
