@@ -20,27 +20,84 @@
 
 
     <div class="content-section">
-        <div>
-            <ul class="list-group list-group-flush">
-                {% for comment in comments %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ comment.message }}
-                        <span><small>{% get_user_by_id comment.user_id %} &middot; {{ comment.created_at }}</small></span>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Task comments</legend>
+            <div>
+                <ul class="list-group" id="comment-container">
+                    {% for comment in comments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ comment.id }}">
+                            {{ comment.message }}
+                            <span>
+                                <small>
+                                    {% get_user_by_id comment.user_id %} &middot; {{ comment.created_at|date:'F d, Y, h:i A' }}
+                                </small>
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </fieldset>
 
-        <hr>
-        <div>
-            <form>
+        {% if user == task.author or comment_perm %}
+            <div>
                 <div class="form-group">
                     <label for="comment">Add comment</label>
-                    <input type="email" class="form-control" id="comment" aria-describedby="emailHelp">
+                    <input type="text" class="form-control" id="commentInput" aria-describedby="emailHelp">
                 </div>
-                <button type="submit" class="btn btn-outline-primary btn-sm">send</button>
-            </form>
-        </div>
-
+                <button id="sendComment" class="btn btn-outline-primary btn-sm">send</button>
+            </div>
+        {% endif %}
     </div>
+
+
+    {{ task.id|json_script:"taskId" }}
+    <script>
+        const taskId = JSON.parse(document.getElementById('taskId').textContent);
+        const commentInput = document.querySelector('#commentInput');
+        const sendComment = document.querySelector('#sendComment');
+        const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${taskId}/`);
+
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const node = `<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${data.comment_id}">
+                            ${data.message}
+                            <span>
+                                <small>
+                                   ${data.username} &middot; ${data.datetime}
+                                </small>
+                        </span>
+                    </li>`;
+            document.getElementById('comment-container').innerHTML += node;
+        };
+
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+
+        {% if user == task.author or comment_perm %}
+            commentInput.focus();
+            commentInput.onkeyup = function (e) {
+                if (e.keyCode === 13) {
+                    sendComment.click();
+                }
+            };
+
+
+            sendComment.onclick = function (e) {
+                const message = commentInput.value;
+                if (!message) {
+                    return false;
+                }
+
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'taskId': {{ task.id }}
+                }));
+                commentInput.value = '';
+            };
+        {% endif %}
+    </script>
 {% endblock content %}

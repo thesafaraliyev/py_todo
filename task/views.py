@@ -22,18 +22,31 @@ class TaskListView(LoginRequiredMixin, ListView):
 
 
 class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    Comment.objects.create(
+        message='cxzcxz',
+        task_id=4,
+        user_id=1,
+    )
+
     model = Task
     template_name = "task/detail.html"
     context_object_name = 'task'
 
     def get_context_data(self, **kwargs):
+        task = self.get_object()
         context = super(TaskDetailView, self).get_context_data(**kwargs)
         context['comments'] = Comment.objects.filter(task_id=self.get_object().id)
+        context['comment_perm'] = True
+
+        if self.request.user != task.author:
+            task_user = TaskUser.objects.get(user=self.request.user, task=task)
+            context['comment_perm'] = task_user.access_type == TaskUser.COMMENT
+
         return context
 
     def test_func(self):
         task = self.get_object()
-        return self.request.user == task.author
+        return self.request.user == task.author or TaskUser.objects.filter(user=self.request.user, task=task).count()
 
 
 class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
