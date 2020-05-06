@@ -31,15 +31,21 @@
                             <a type="button" class="btn btn-outline-secondary" href="{% url 'task:detail' task.id %}">
                                 view
                             </a>
-                            <a type="button" class="btn btn-outline-secondary" href="{% url 'task:update' task.id %}">
-                                edit
-                            </a>
-                            <a type="button" class="btn btn-outline-secondary" href="{% url 'task:user-attach' task.id %}">
-                                attach
-                            </a>
-                            <a type="button" class="btn btn-outline-danger" href="{% url 'task:delete' task.id %}">
-                                delete
-                            </a>
+
+                            {% if task.author == user %}
+                                <a type="button" class="btn btn-outline-secondary"
+                                   href="{% url 'task:update' task.id %}">
+                                    edit
+                                </a>
+                                <a type="button" class="btn btn-outline-secondary"
+                                   href="{% url 'task:user-attach' task.id %}">
+                                    attach
+                                </a>
+                                <a type="button" class="btn btn-outline-danger" href="{% url 'task:delete' task.id %}">
+                                    delete
+                                </a>
+                            {% endif %}
+
                         </div>
                     </td>
                 </tr>

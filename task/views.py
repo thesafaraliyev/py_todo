@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -18,16 +19,14 @@ class TaskListView(LoginRequiredMixin, ListView):
     context_object_name = 'tasks'
 
     def get_queryset(self):
-        return Task.objects.filter(author=self.request.user).order_by('deadline')
+        attached = TaskUser.objects.filter(user=self.request.user).values_list('task', flat=True)
+        attached_tasks = Task.objects.filter(pk__in=attached)
+
+        user_tasks = Task.objects.filter(author=self.request.user).order_by('deadline')
+        return user_tasks.union(attached_tasks)
 
 
 class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    Comment.objects.create(
-        message='cxzcxz',
-        task_id=4,
-        user_id=1,
-    )
-
     model = Task
     template_name = "task/detail.html"
     context_object_name = 'task'

@@ -25,13 +25,39 @@
             <div>
                 <ul class="list-group" id="comment-container">
                     {% for comment in comments %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ comment.id }}">
-                            {{ comment.message }}
-                            <span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            data-id="{{ comment.id }}"
+                            id="js-comment-li-{{ comment.id }}"
+                        >
+                            <span class="js-message-holder">{{ comment.message }}</span>
+                            <div>
+                              <span>
                                 <small>
                                     {% get_user_by_id comment.user_id %} &middot; {{ comment.created_at|date:'F d, Y, h:i A' }}
                                 </small>
-                            </span>
+                            </span> &middot;
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                                    <button
+                                            type="button"
+                                            class="btn btn-outline-secondary js-edit-message"
+                                            data-id="{{ comment.id }}"
+                                            data-type="update"
+                                    >
+                                        edit
+                                    </button>
+                                    <button
+                                            type="button"
+                                            class="btn btn-outline-danger js-delete-message"
+                                            data-id="{{ comment.id }}"
+                                            data-type="delete"
+                                            data-toggle="modal"
+                                            data-target="#exampleModal"
+                                    >
+                                        delete
+                                    </button>
+
+                                </div>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -42,6 +68,8 @@
             <div>
                 <div class="form-group">
                     <label for="comment">Add comment</label>
+                    <input type="hidden" value="add" id="comment-action">
+                    <input type="hidden" value="null" id="comment-identifier">
                     <input type="text" class="form-control" id="commentInput" aria-describedby="emailHelp">
                 </div>
                 <button id="sendComment" class="btn btn-outline-primary btn-sm">send</button>
@@ -49,26 +77,70 @@
         {% endif %}
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="exampleModalLabel">Are you sure want to delete?</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This comment will be deleted permanently.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="delete-comment" data-dismiss="modal">Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{ task.id|json_script:"taskId" }}
     <script>
         const taskId = JSON.parse(document.getElementById('taskId').textContent);
         const commentInput = document.querySelector('#commentInput');
         const sendComment = document.querySelector('#sendComment');
+        const commentContainer = document.getElementById('comment-container');
+        const commentAction = document.querySelector('#comment-action');
+        const commentIdentifier = document.querySelector('#comment-identifier');
         const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${taskId}/`);
 
 
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            const node = `<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${data.comment_id}">
-                            ${data.message}
-                            <span>
-                                <small>
-                                   ${data.username} &middot; ${data.datetime}
-                                </small>
+            console.log(data)
+            if (!data.state) {
+                if (data.user_id === {{ user.id }}) {
+                    alert(data.message);
+                }
+                return false;
+            }
+
+            if ('update' === data.action_type) {
+                const element = document.getElementById(`js-comment-li-${data.comment_id}`).children[0].innerHTML = data.message;
+                console.log(element)
+            } else {
+                commentContainer.innerHTML += `
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                        data-id="${data.comment_id}"
+                        id="js-comment-li-${data.comment_id}"
+                    >
+                        ${data.message}
+                        <span>
+                            <small>
+                               ${data.username} &middot; ${data.datetime}
+                            </small>
                         </span>
                     </li>`;
-            document.getElementById('comment-container').innerHTML += node;
+            }
+
+
         };
 
 
@@ -93,11 +165,38 @@
                 }
 
                 chatSocket.send(JSON.stringify({
+                    'actionType': commentAction.value,
+                    'identifier': commentIdentifier.value,
                     'message': message,
                     'taskId': {{ task.id }}
                 }));
                 commentInput.value = '';
             };
         {% endif %}
+
+
+        commentContainer.onclick = event => {
+            const element = event.target;
+            const elementId = element.getAttribute('data-id');
+            const operationType = element.getAttribute('data-type');
+
+            commentAction.value = operationType
+            commentIdentifier.value = elementId
+
+            if ('update' === operationType) {
+                commentInput.value = element.parentElement.parentElement.parentElement.children[0].textContent
+            }
+
+        };
+
+        document.getElementById('delete-comment').onclick = function (e) {
+            chatSocket.send(JSON.stringify({
+                'actionType': 'delete',
+                'identifier': commentIdentifier.value,
+                'taskId': {{ task.id }},
+            }));
+
+        }
+
     </script>
 {% endblock content %}
