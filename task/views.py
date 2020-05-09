@@ -34,7 +34,7 @@ class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         task = self.get_object()
         context = super(TaskDetailView, self).get_context_data(**kwargs)
-        context['comments'] = Comment.objects.filter(task_id=self.get_object().id)
+        context['comments'] = Comment.objects.filter(task_id=self.get_object().id).order_by('created_at')
         context['comment_perm'] = True
 
         if self.request.user != task.author:

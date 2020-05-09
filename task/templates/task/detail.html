@@ -35,26 +35,30 @@
                                 <small>
                                     {% get_user_by_id comment.user_id %} &middot; {{ comment.created_at|date:'F d, Y, h:i A' }}
                                 </small>
-                            </span> &middot;
-                                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                                    <button
-                                            type="button"
-                                            class="btn btn-outline-secondary js-edit-message"
-                                            data-id="{{ comment.id }}"
-                                            data-type="update"
-                                    >
-                                        edit
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="btn btn-outline-danger js-delete-message"
-                                            data-id="{{ comment.id }}"
-                                            data-type="delete"
-                                            data-toggle="modal"
-                                            data-target="#exampleModal"
-                                    >
-                                        delete
-                                    </button>
+                            </span>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example"> &nbsp;
+                                    {% if comment.user_id == user.id %}
+                                        <button
+                                                type="button"
+                                                class="btn btn-outline-secondary js-edit-message"
+                                                data-id="{{ comment.id }}"
+                                                data-type="update"
+                                        >
+                                            edit
+                                        </button>
+                                    {% endif %}
+                                    {% if comment.user_id == user.id or task.author.id == user.id %}
+                                        <button
+                                                type="button"
+                                                class="btn btn-outline-danger js-delete-message"
+                                                data-id="{{ comment.id }}"
+                                                data-type="delete"
+                                                data-toggle="modal"
+                                                data-target="#exampleModal"
+                                        >
+                                            delete
+                                        </button>
+                                    {% endif %}
 
                                 </div>
                             </div>
@@ -65,7 +69,7 @@
         </fieldset>
 
         {% if user == task.author or comment_perm %}
-            <div>
+            <div id="add-comment-container">
                 <div class="form-group">
                     <label for="comment">Add comment</label>
                     <input type="hidden" value="add" id="comment-action">
@@ -103,9 +107,12 @@
     {{ task.id|json_script:"taskId" }}
     <script>
         const taskId = JSON.parse(document.getElementById('taskId').textContent);
+        const userId = parseInt('{{ user.id }}');
+        const taskAuthorId = parseInt('{{ task.author.id }}');
         const commentInput = document.querySelector('#commentInput');
         const sendComment = document.querySelector('#sendComment');
         const commentContainer = document.getElementById('comment-container');
+        const addCommentContainer = document.querySelector('#add-comment-container');
         const commentAction = document.querySelector('#comment-action');
         const commentIdentifier = document.querySelector('#comment-identifier');
         const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${taskId}/`);
@@ -113,7 +120,7 @@
 
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            console.log(data)
+            {#console.log(data)#}
             if (!data.state) {
                 if (data.user_id === {{ user.id }}) {
                     alert(data.message);
@@ -122,21 +129,31 @@
             }
 
             if ('update' === data.action_type) {
-                const element = document.getElementById(`js-comment-li-${data.comment_id}`).children[0].innerHTML = data.message;
-                console.log(element)
+                document.getElementById(`js-comment-li-${data.comment_id}`).children[0].innerHTML = data.message;
+            } else if ('delete' === data.action_type) {
+                document.getElementById(`js-comment-li-${data.comment_id}`).remove()
             } else {
+                const editBtnHTML = `<button class="btn btn-outline-secondary js-edit-message" data-id="${data.comment_id}" data-type="update">edit</button>`
+                const deleteBtnHTML = `<button  class="btn btn-outline-danger js-delete-message" data-id="${data.comment_id}" data-type="delete" data-toggle="modal" data-target="#exampleModal">delete</button>`
+
                 commentContainer.innerHTML += `
                     <li
                         class="list-group-item d-flex justify-content-between align-items-center"
                         data-id="${data.comment_id}"
                         id="js-comment-li-${data.comment_id}"
                     >
-                        ${data.message}
-                        <span>
-                            <small>
-                               ${data.username} &middot; ${data.datetime}
-                            </small>
-                        </span>
+                        <span class="js-message-holder">${data.message}</span>
+                        <div>
+                            <span>
+                                <small>
+                                   ${data.username} &middot; ${data.datetime}
+                                </small>
+                            </span>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Basic example"> &nbsp;
+                                ${data.user_id === userId ? editBtnHTML : ''}
+                                ${data.user_id === userId || taskAuthorId === userId ? deleteBtnHTML : ''}
+                            </div>
+                        </div>
                     </li>`;
             }
 
@@ -158,7 +175,7 @@
             };
 
 
-            sendComment.onclick = function (e) {
+            sendComment.onclick = event => {
                 const message = commentInput.value;
                 if (!message) {
                     return false;
@@ -170,7 +187,7 @@
                     'message': message,
                     'taskId': {{ task.id }}
                 }));
-                commentInput.value = '';
+                resetCommentActions();
             };
         {% endif %}
 
@@ -184,7 +201,12 @@
             commentIdentifier.value = elementId
 
             if ('update' === operationType) {
+                commentInput.focus();
                 commentInput.value = element.parentElement.parentElement.parentElement.children[0].textContent
+
+                if (!document.getElementById('cancelUpdate')) {
+                    addCommentContainer.insertAdjacentHTML('beforeend', `<button id="cancelUpdate" class="btn btn-outline-secondary btn-sm" onclick="cancelUpdate(this)">cancel</button>`)
+                }
             }
 
         };
@@ -193,10 +215,22 @@
             chatSocket.send(JSON.stringify({
                 'actionType': 'delete',
                 'identifier': commentIdentifier.value,
-                'taskId': {{ task.id }},
+                'taskId': taskId,
             }));
 
         }
+
+        const cancelUpdate = event => {
+            resetCommentActions();
+            event.remove();
+        }
+
+        const resetCommentActions = () => {
+            commentInput.value = '';
+            commentAction.value = 'add';
+            commentIdentifier.value = 'null';
+        }
+
 
     </script>
 {% endblock content %}

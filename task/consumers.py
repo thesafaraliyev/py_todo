@@ -31,12 +31,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
 
+        user = self.scope['user']
+        task_id = text_data_json['taskId']
         comment_id = text_data_json['identifier']
         action_type = text_data_json['actionType']
-        message = text_data_json['message']
-        task_id = text_data_json['taskId']
-
-        user = self.scope['user']
 
         context = {
             'state': True,
@@ -48,22 +46,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         try:
             if action_type == 'delete':
-                comment = Comment.objects.get(pk=comment_id)
-            elif action_type == 'update':
-                comment = await self.update_comment(comment_id, user, task_id, message)
+                await self.delete_comment(comment_id, user, task_id)
+                context.update({
+                    'comment_id': comment_id,
+                })
+
             else:
-                comment = await self.create_comment(user, task_id, message)
+                message = text_data_json['message']
 
-            context.update({
-                'comment_id': comment.id,
-                'datetime': comment.created_at.strftime("%B %d, %Y, %I:%M %p"),
-                'message': message,
-            })
+                if action_type == 'update':
+                    comment = await self.update_comment(comment_id, user, task_id, message)
+                else:
+                    comment = await self.create_comment(user, task_id, message)
 
-        except (TaskUser.DoesNotExist, Task.DoesNotExist) as e:
+                context.update({
+                    'comment_id': comment.id,
+                    'datetime': comment.created_at.strftime("%B %d, %Y, %I:%M %p"),
+                    'message': message,
+                })
+
+        except (TaskUser.DoesNotExist, Task.DoesNotExist, Comment.DoesNotExist) as e:
             context.update({
                 'state': False,
-                'message': 'Task is not found or you do not have access to add comment to this task.',
+                'message': 'Something went wrong.',
             })
         finally:
             await self.channel_layer.group_send(self.room_group_name, context)
@@ -95,3 +100,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         comment.message = message
         comment.save()
         return comment
+
+    @database_sync_to_async
+    def delete_comment(self, comment_id, user, task_id):
+        comment = Comment.objects.get(id=comment_id)
+        if Task.objects.filter(author=user, pk=task_id).exists() or Comment.objects.get(pk=comment_id, user_id=user.id):
+            comment.delete()
+        return comment_id
