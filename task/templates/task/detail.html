@@ -156,8 +156,6 @@
                         </div>
                     </li>`;
             }
-
-
         };
 
 
@@ -208,8 +206,8 @@
                     addCommentContainer.insertAdjacentHTML('beforeend', `<button id="cancelUpdate" class="btn btn-outline-secondary btn-sm" onclick="cancelUpdate(this)">cancel</button>`)
                 }
             }
-
         };
+
 
         document.getElementById('delete-comment').onclick = function (e) {
             chatSocket.send(JSON.stringify({
@@ -220,10 +218,12 @@
 
         }
 
+
         const cancelUpdate = event => {
             resetCommentActions();
             event.remove();
         }
+
 
         const resetCommentActions = () => {
             commentInput.value = '';

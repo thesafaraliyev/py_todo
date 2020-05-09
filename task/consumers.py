@@ -30,6 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        # todo: validation needed
 
         user = self.scope['user']
         task_id = text_data_json['taskId']
