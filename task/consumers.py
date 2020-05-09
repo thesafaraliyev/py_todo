@@ -1,7 +1,6 @@
 import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.shortcuts import get_object_or_404
 
 from comment.models import Comment
 from .models import Task, TaskUser

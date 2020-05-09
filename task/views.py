@@ -1,14 +1,13 @@
-from django.http import HttpResponseRedirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Task, TaskUser
-from .forms import TaskForm, TaskUserAttachForm
 from django.urls import reverse_lazy
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model, decorators
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
+
+from .models import Task, TaskUser
+from .forms import TaskForm, TaskUserAttachForm
 from comment.models import Comment
 
 User = get_user_model()
@@ -83,7 +82,7 @@ class TaskDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixi
         return self.request.user == task.author
 
 
-@login_required
+@decorators.login_required
 def attach(request, pk):
     task = get_object_or_404(Task, pk=pk, author=request.user)
     users = TaskUser.objects.filter(task=task)

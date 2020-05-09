@@ -1,8 +1,10 @@
 from django import forms
-from .models import Task, TaskUser
-from tempus_dominus.widgets import DateTimePicker
 from django.db.models import Q
 from django.contrib.auth import get_user_model
+
+from tempus_dominus.widgets import DateTimePicker
+
+from .models import Task, TaskUser
 
 User = get_user_model()
 
