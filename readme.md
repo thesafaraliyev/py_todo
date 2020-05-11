@@ -23,6 +23,7 @@ To run application set database connections properly in py_todo/setting.py file.
 Then migrate migrations and start the development server with commands:
 ```sh
 $ python3 manage.py migrate
+$ python3 manage.py migrate --database=comment
 $ python3 manage.py runserver
 ```
 
