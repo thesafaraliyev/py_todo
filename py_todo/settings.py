@@ -152,3 +152,19 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/tasks'
 
 DATABASE_ROUTERS = ['py_todo.routers.CommentRouter', ]
+
+# mail settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'elshansafaraliyev@gmail.com'
+EMAIL_HOST_PASSWORD = 'pjkfnnuezyxoiggu'
+
+# celery settings
+# BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Baku'

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,8 +9,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 
 from .models import Task, TaskUser
+from .tasks import send_task_notify_mail
 from .forms import TaskForm, TaskUserAttachForm
 from comment.models import Comment
+
 
 User = get_user_model()
 
@@ -99,6 +103,8 @@ def attach(request, pk):
                 return render(request, 'task/attach.html', {'task': task, 'form': form, 'users': users})
             except TaskUser.DoesNotExist:
                 TaskUser.objects.create(user=user, access_type=access_type, task=task)
+                send_task_notify_mail.apply_async((task.title, task.author.username, user.email),
+                                                  eta=task.deadline - timedelta(minutes=10))
                 messages.success(request, 'Access successfully granted.')
                 return redirect('task:user-attach', pk=pk)
 
