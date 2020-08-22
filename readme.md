@@ -32,6 +32,12 @@ To start celery task worker run:
 ```sh
 $ celery -A py_todo worker -l info
 ```
+#### Notes
+Todo app created by me based on test task which has been sent from Shaig Muradov/shaig@labrin.tech:
+
+>Salam.
+>CV-nizə baxdıq. Sizinlə işləmək bizim üçün maraqlı olar. Üzbəüz müsahibəyə dəvət etmədən əvvəl, sizə kiçik bir task vermək istəyirik.
+>Task python/django istifadə edilərək yazılmalı olan mini bir app-dır.
 
 >Todo app yazmaq lazımdır. Hər taskın adı, açıqlaması, və bitmə tarixi var. Bitmə tarixindən 10 dəq öncə xatırlatma email-i göndərmək lazımdır istifadəçiyə. Emailləri asinxron göndərmək üçün celery task istifadə etməyiniz məsləhətdir. celery broker olaraq rabbitmq ya redis-i istifadə etməkdə sərbəstsiniz
 
