@@ -33,10 +33,6 @@ To start celery task worker run:
 $ celery -A py_todo worker -l info
 ```
 
-#### Notes
-Todo app created by me based on test task which has been sent from Shaig Muradov/shaig@labrin.tech:
-
-
 >Todo app yazmaq lazımdır. Hər taskın adı, açıqlaması, və bitmə tarixi var. Bitmə tarixindən 10 dəq öncə xatırlatma email-i göndərmək lazımdır istifadəçiyə. Emailləri asinxron göndərmək üçün celery task istifadə etməyiniz məsləhətdir. celery broker olaraq rabbitmq ya redis-i istifadə etməkdə sərbəstsiniz
 
 >By default olaraq tasklar ancaq onu yaradan istifadəçiyə görünür, digər istifadəçilər tərəfindən görünmür. Lakin istifadəçi digər istifadəçi ilə taskı, onun username və ya email ünvanını yazaraq paylaşa bilir. Bu zaman 2 formatda paylaşma mümkündür yalnız taskı görmək, və ya həm görmək həm də şərh yazmaq imkanı. Taskın details səhifəsində şərhlər realtime olaraq socket ilə yazılır, yəni yazılan şərhlər anlıq olaraq qarşı tərəfdə görünməlidir (django channels istifadə etməyi məsləhət görərdim).
