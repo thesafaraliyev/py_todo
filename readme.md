@@ -33,13 +33,3 @@ To start celery task worker run:
 $ celery -A py_todo worker -l info
 ```
 #### Notes
-
->Todo app yazmaq lazımdır. Hər taskın adı, açıqlaması, və bitmə tarixi var. Bitmə tarixindən 10 dəq öncə xatırlatma email-i göndərmək lazımdır istifadəçiyə. Emailləri asinxron göndərmək üçün celery task istifadə etməyiniz məsləhətdir. celery broker olaraq rabbitmq ya redis-i istifadə etməkdə sərbəstsiniz
-
->By default olaraq tasklar ancaq onu yaradan istifadəçiyə görünür, digər istifadəçilər tərəfindən görünmür. Lakin istifadəçi digər istifadəçi ilə taskı, onun username və ya email ünvanını yazaraq paylaşa bilir. Bu zaman 2 formatda paylaşma mümkündür yalnız taskı görmək, və ya həm görmək həm də şərh yazmaq imkanı. Taskın details səhifəsində şərhlər realtime olaraq socket ilə yazılır, yəni yazılan şərhlər anlıq olaraq qarşı tərəfdə görünməlidir (django channels istifadə etməyi məsləhət görərdim).
-
->Database olaraq postgresql seçin. Application-u docker (docker-compose) ilə serve edin.
-
->1) Əgər mümkün olsa şərhləri əsas DB-də yox ayrıca bir DB-də store etməyə çalışın. (django multi-database feature)
->2) Mümkün olsa taskın müəllifi fayla yazılan şərhləri silə bilməlidir.
->3) Mümkün olsa şərhin müəllifi öz şərhini həm silə bilməli, həm də edit edə bilməlidir.
